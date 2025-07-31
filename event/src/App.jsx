@@ -4,9 +4,9 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute.jsx";
 
-import Home from "./pages/Home.jsx";
+import Home from "./Pages/Home.jsx";
 import EventDetails from "./pages/EventDetails.jsx";
-import Login from "./pages/Login.jsx";
+import Login from "./Pages/Login.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import MyEvents from "./pages/MyEvents.jsx";
 import RegisterForm from "./pages/RegisterForm.jsx";
