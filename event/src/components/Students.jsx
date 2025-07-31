@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase/client";
+import { Loader2 } from "lucide-react"; // if you're using lucide or you can use any spinner icon
 
 const Students = () => {
   const [students, setStudents] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [yearFilter, setYearFilter] = useState("all");
@@ -12,6 +14,7 @@ const Students = () => {
 
   useEffect(() => {
     const fetchStudents = async () => {
+      setLoading(true);
       const { data, error } = await supabase.from("students").select("*");
       if (error) {
         console.error("❌ Error fetching students:", error.message);
@@ -19,6 +22,7 @@ const Students = () => {
         setStudents(data);
         setFiltered(data);
       }
+      setLoading(false);
     };
     fetchStudents();
   }, []);
@@ -49,16 +53,27 @@ const Students = () => {
     setFiltered(result);
   }, [search, yearFilter, deptFilter, genderFilter, students]);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin h-10 w-10 text-blue-600" />
+          <p className="text-lg font-medium text-gray-600">Fetching student data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">👨‍🎓 Student List</h1>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-extrabold mb-6 text-blue-700">👨‍🎓 Student Directory</h1>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <input
           type="text"
           placeholder="Search by name or email"
-          className="border p-2 w-full md:w-1/3"
+          className="border p-2 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -66,7 +81,7 @@ const Students = () => {
         <select
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
-          className="border p-2 w-full md:w-1/4"
+          className="border p-2 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="all">All Years</option>
           <option value="1">1st Year</option>
@@ -78,7 +93,7 @@ const Students = () => {
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
-          className="border p-2 w-full md:w-1/4"
+          className="border p-2 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="all">All Departments</option>
           <option value="CSE">CSE</option>
@@ -91,7 +106,7 @@ const Students = () => {
         <select
           value={genderFilter}
           onChange={(e) => setGenderFilter(e.target.value)}
-          className="border p-2 w-full md:w-1/4"
+          className="border p-2 rounded shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           <option value="all">All Genders</option>
           <option value="male">Male</option>
@@ -101,33 +116,38 @@ const Students = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-white shadow rounded">
+      <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
+          <thead className="bg-blue-50">
             <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">First Name</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Last Name</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Gender</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Department</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Year</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Email</th>
+              {["First Name", "Last Name", "Gender", "Department", "Year", "Email"].map((header) => (
+                <th
+                  key={header}
+                  className="px-4 py-3 text-left text-sm font-semibold text-blue-700"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filtered.length > 0 ? (
               filtered.map((student) => (
-                <tr key={student.id}>
-                  <td className="px-4 py-2 text-sm">{student.first_name}</td>
-                  <td className="px-4 py-2 text-sm">{student.last_name}</td>
-                  <td className="px-4 py-2 text-sm">{student.gender}</td>
-                  <td className="px-4 py-2 text-sm">{student.department}</td>
-                  <td className="px-4 py-2 text-sm">{student.year}</td>
-                  <td className="px-4 py-2 text-sm">{student.email}</td>
+                <tr
+                  key={student.id}
+                  className="hover:bg-blue-50 transition duration-150"
+                >
+                  <td className="px-4 py-2 text-sm text-gray-700">{student.first_name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{student.last_name}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700 capitalize">{student.gender}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{student.department}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">{student.year}</td>
+                  <td className="px-4 py-2 text-sm text-blue-700">{student.email}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="6" className="text-center py-6 text-gray-500">
                   No students found.
                 </td>
               </tr>
